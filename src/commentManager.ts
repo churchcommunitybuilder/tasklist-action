@@ -33,19 +33,21 @@ export async function removeExistingComment(
     'Failed to fetched PR comments',
   )
 
-  const existingComment = comments.find(
-    (comment) => comment.user?.id === comment.body?.includes(createdByFooter),
+  const existingComments = comments.filter((comment) =>
+    comment.body?.includes(createdByFooter),
   )
 
-  if (existingComment) {
-    await handleError(
-      () =>
-        Octokit.instance.issues.deleteComment({
-          ...Octokit.repo,
-          comment_id: existingComment.id,
-        }),
-      'Existing comment found, deleting...',
-      'Failed to delete existing comment',
-    )
+  if (existingComments.length) {
+    for (const existingComment of existingComments) {
+      await handleError(
+        () =>
+          Octokit.instance.issues.deleteComment({
+            ...Octokit.repo,
+            comment_id: existingComment.id,
+          }),
+        'Existing comment found, deleting...',
+        'Failed to delete existing comment',
+      )
+    }
   }
 }
