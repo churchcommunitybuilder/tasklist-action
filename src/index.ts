@@ -1,17 +1,22 @@
 import * as Github from '@actions/github'
-import * as path from 'path'
+import * as Core from '@actions/core'
 
 import { Octokit } from './octokit'
 import { createComment, removeExistingComment } from './commentManager'
 import { getTasklistMarkdown } from './tasklistManager'
 import { loadConfiguration } from './configuration'
 
-Octokit.instance = Github.getOctokit('43a202d108a036325bc71e06593967b12c55ec2b')
-
-const issueNumber = Github.context.issue.number ?? 8276
-process.env.GITHUB_WORKSPACE = path.join(__dirname, '..')
-
 async function performAction() {
+  const issueNumber = Github.context.issue.number
+
+  if (!issueNumber) {
+    Core.setFailed('This action must be run on the pull_request event')
+    process.exit(Core.ExitCode.Failure)
+  }
+
+  const githubToken = Core.getInput('github-token', { required: true })
+  Octokit.instance = Github.getOctokit(githubToken)
+
   const configs = await loadConfiguration()
   const tasklist = await getTasklistMarkdown(issueNumber, configs)
 
