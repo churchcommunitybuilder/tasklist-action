@@ -1,0 +1,9 @@
+name: 'PR Tasklist'
+description: 'Check that a PR Tasklist is complete'
+inputs:
+  github-token:
+    description: 'The token for the github actor'
+    required: true
+runs:
+  using: 'node12'
+  main: 'index.js'
