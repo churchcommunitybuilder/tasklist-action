@@ -8,7 +8,7 @@
   "license": "MIT",
   "scripts": {
     "build": "tsc",
-    "package": "ncc build src/index.ts -o dist"
+    "package": "ncc build src/index.ts -o lib"
   },
   "dependencies": {
     "@actions/core": "^1.2.6",
