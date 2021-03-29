@@ -23,14 +23,6 @@ export async function createComment(
 export async function removeExistingComment(
   issueNumber: number,
 ): Promise<void> {
-  const { data: currentUser } = await handleError(
-    () => Octokit.instance.users.getAuthenticated(),
-    'Fetched authenticated user',
-    'Failed to fetch authenticated user',
-  )
-
-  const currentUserId = currentUser.id
-
   const { data: comments } = await handleError(
     () =>
       Octokit.instance.issues.listComments({
@@ -42,9 +34,7 @@ export async function removeExistingComment(
   )
 
   const existingComment = comments.find(
-    (comment) =>
-      comment.user?.id === currentUserId &&
-      comment.body?.includes(createdByFooter),
+    (comment) => comment.user?.id === comment.body?.includes(createdByFooter),
   )
 
   if (existingComment) {
