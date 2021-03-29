@@ -4,7 +4,6 @@ import * as Core from '@actions/core'
 import { Octokit } from './octokit'
 import { createComment, removeExistingComment } from './commentManager'
 import { getTasklistMarkdown } from './tasklistManager'
-import { loadConfiguration } from './configuration'
 
 async function performAction() {
   const issueNumber = Github.context.issue.number
@@ -15,11 +14,12 @@ async function performAction() {
   }
 
   const githubToken = Core.getInput('github-token', { required: true })
+  const tasklistsInput = Core.getInput('tasklists', { required: true })
   Octokit.instance = Github.getOctokit(githubToken)
 
-  const configs = await loadConfiguration()
-  const tasklist = await getTasklistMarkdown(issueNumber, configs)
+  const tasklist = await getTasklistMarkdown(issueNumber, tasklistsInput)
 
+  // Always remove the previous comment, even if there isn't going to be a new one
   await removeExistingComment(issueNumber)
 
   if (tasklist) {

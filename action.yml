@@ -4,6 +4,9 @@ inputs:
   github-token:
     description: 'The token for the github actor'
     required: true
+  tasklists:
+    description: 'An array of tasklist configs, defining the pattern to match for each tasklist'
+    required: true
 runs:
   using: 'node12'
   main: 'lib/index.js'
