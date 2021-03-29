@@ -1,9 +1,0 @@
--
-  pattern: '.github/**/*'
-  template: |
-    # Web App Checks
-    ## Do these things
-  checks:
-    - One
-    - Two
-    - Three

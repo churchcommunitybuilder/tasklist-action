@@ -8,7 +8,8 @@
   "license": "MIT",
   "scripts": {
     "build": "tsc",
-    "package": "ncc build src/index.ts -o lib"
+    "package": "ncc build src/index.ts -o lib",
+    "test": "npx ts-node tests/index.ts"
   },
   "dependencies": {
     "@actions/core": "^1.2.6",
@@ -25,6 +26,7 @@
     "@typescript-eslint/eslint-plugin": "^4.19.0",
     "@typescript-eslint/parser": "^4.19.0",
     "@vercel/ncc": "^0.27.0",
+    "dotenv": "^8.2.0",
     "eslint": "^7.22.0",
     "eslint-config-prettier": "^8.1.0",
     "eslint-plugin-prettier": "^3.3.1",

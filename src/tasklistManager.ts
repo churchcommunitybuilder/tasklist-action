@@ -1,26 +1,14 @@
 import * as Core from '@actions/core'
 import * as micromatch from 'micromatch'
-import * as yaml from 'js-yaml'
 
+import { TasklistConfig } from './configuration'
 import { handleError } from './errorHandler'
 import { Octokit } from './octokit'
 
-type TasklistConfig = {
-  pattern: string
-  template: string
-  checks: string[]
-}
-
 export async function getTasklistMarkdown(
   issueNumber: number,
-  rawTasklists: string,
+  tasklists: TasklistConfig[],
 ): Promise<string | null> {
-  const tasklists = await handleError(
-    () => yaml.load(rawTasklists) as TasklistConfig[],
-    'Parsed tasklists config',
-    'Invalid tasklists config',
-  )
-
   const { data: files } = await handleError(
     () =>
       Octokit.instance.pulls.listFiles({
@@ -45,6 +33,7 @@ export async function getTasklistMarkdown(
   const matchedPatterns = matchingTasklists
     .map(({ pattern }) => `  - ${pattern}`)
     .join('\n')
+
   Core.info(`Generated tasklists for following patterns:\n${matchedPatterns}`)
 
   return matchingTasklists
