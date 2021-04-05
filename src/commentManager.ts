@@ -1,7 +1,22 @@
+import marked from 'marked'
 import { handleError } from './errorHandler'
 import { Octokit } from './octokit'
 
-const createdByFooter = '###### Created by Tasklist Action'
+export async function updateComment(
+  commentId: number,
+  body: string,
+): Promise<void> {
+  await handleError(
+    () =>
+      Octokit.instance.issues.updateComment({
+        ...Octokit.repo,
+        body,
+        comment_id: commentId,
+      }),
+    'Updated comment',
+    'Failed to update comment',
+  )
+}
 
 export async function createComment(
   issueNumber: number,
@@ -12,17 +27,17 @@ export async function createComment(
       Octokit.instance.issues.createComment({
         ...Octokit.repo,
         issue_number: issueNumber,
-        body: `${body}\n---\n${createdByFooter}
-  `.trim(),
+        body,
       }),
     'Created new comment',
     'Failed to create new comment',
   )
 }
 
-export async function removeExistingComment(
+export async function getExistingComment(
   issueNumber: number,
-): Promise<void> {
+  commentIdentifier: string,
+): Promise<[id: number, commentTokens: marked.TokensList] | null> {
   const { data: comments } = await handleError(
     () =>
       Octokit.instance.issues.listComments({
@@ -33,21 +48,20 @@ export async function removeExistingComment(
     'Failed to fetched PR comments',
   )
 
-  const existingComments = comments.filter((comment) =>
-    comment.body?.includes(createdByFooter),
+  const previousComment = comments.find((comment) =>
+    comment.body?.includes(commentIdentifier),
   )
 
-  if (existingComments.length) {
-    for (const existingComment of existingComments) {
-      await handleError(
-        () =>
-          Octokit.instance.issues.deleteComment({
-            ...Octokit.repo,
-            comment_id: existingComment.id,
-          }),
-        'Existing comment found, deleting...',
-        'Failed to delete existing comment',
-      )
-    }
+  if (previousComment?.body) {
+    return [
+      previousComment.id,
+      marked.lexer(previousComment.body, {
+        gfm: true,
+        breaks: true,
+        headerIds: true,
+      }),
+    ]
   }
+
+  return null
 }
